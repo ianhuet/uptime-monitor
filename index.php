@@ -45,11 +45,22 @@ $app->get('/check', function (Request $request, Response $response) {
   $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
 
-  $status = ($retcode === 200) ? true : false;
   $timestamp = time();
   $datetime  = gmdate("Y-M-d H:i:s");
-  $sql = "INSERT INTO log (`id`, `timestamp`, `datetime`, `status`) VALUES (null, $timestamp, $datetime, $status)";
-  $this->db->prepare($sql);
+  $status = ($retcode === 200) ? true : false;
+  
+  try {
+    $sql = "INSERT INTO log (`timestamp`, `datetime`, `status`) VALUES (?, ?, ?)";
+    $qry = $this->db->prepare($sql);
+    $qry->execute([
+      $timestamp,
+      $datetime,
+      $status
+    ]);
+  }
+  catch(PDOException $e) {
+    error_log($e->getMessage(), 0);
+  }
 
   $log = array(
     'timezone' => $timestamp,
@@ -65,19 +76,30 @@ $app->get('/', function (Request $request, Response $response) {
     // do log retrieval
     // populate $log with retrieved data
 
-  $jsonResponse = $response->withJson(array('log' => 'no data available'));
+  try {
+    $dayAgo = time() - (24 * 60 * 60);
+    $sql = "SELECT * FROM log WHERE `timestamp` >= $dayAgo";
+    $sth = $this->db->query($sql);
+  }
+  catch(PDOException $e) {
+    error_log($e->getMessage(), 0);
+  }
+
+  // return $response->getBody()->write(json_encode($sth->fetchAll(PDO::FETCH_CLASS)));
+
+  $jsonResponse = $response->withJson(json_encode($sth->fetchAll(PDO::FETCH_CLASS)));
   return $jsonResponse;
 });
 
-$app->get('/log/{days}', function (Request $request, Response $response, array $args) {
-  // return log from the last {days} day as JSON
-    // do log retrieval
-    // populate $log with retrieved data
+// $app->get('/log/{days}', function (Request $request, Response $response, array $args) {
+//   // return log from the last {days} day as JSON
+//     // do log retrieval
+//     // populate $log with retrieved data
 
-    // $days = $args['days'];
+//     // $days = $args['days'];
 
-  $jsonResponse = $response->withJson(array('log' => 'no data available'));
-  return $jsonResponse;
-});
+//   $jsonResponse = $response->withJson(array('log' => 'no data available'));
+//   return $jsonResponse;
+// });
 
 $app->run();
