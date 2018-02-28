@@ -22,25 +22,33 @@ $app->get('/check', function (Request $request, Response $response) {
   $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
   curl_close($ch);
 
-  if (200==$retcode) {
-    $response->getBody()->write("Online");
+  if ($retcode === 200) {
+    $data = array('status' => 'online');
   } else {
-    $response->getBody()->write("Offline");
+    $data = array('status' => 'offline');
   }
-
-  return $response;
+  $jsonResponse = $response->withJson($data);
+  return $jsonResponse;
 });
 
 $app->get('/', function (Request $request, Response $response) {
   // return log from the last 1 day as JSON
+    // do log retrieval
+    // populate $log with retrieved data
+
+  $jsonResponse = $response->withJson(array('log' => 'no data available'));
+  return $jsonResponse;
 });
 
-// $app->get('/data/{days}', function (Request $request, Response $response, array $args) {
+$app->get('/log/{days}', function (Request $request, Response $response, array $args) {
   // return log from the last {days} day as JSON
-  // $days = $args['days'];
+    // do log retrieval
+    // populate $log with retrieved data
 
-//   $response->getBody()->write("Hello, $name");
-//   return $response;
-// });
+    // $days = $args['days'];
+
+  $jsonResponse = $response->withJson(array('log' => 'no data available'));
+  return $jsonResponse;
+});
 
 $app->run();
