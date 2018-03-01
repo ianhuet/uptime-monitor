@@ -8,7 +8,7 @@ $config = require 'config.php';
 
 
 // Load .ENV configuration
-$dotenv = new Dotenv\Dotenv(__DIR__);
+$dotenv = new Dotenv\Dotenv(__DIR__, '../.env.uptime-monitor');
 $dotenv->load();
 
 // Create app instance
@@ -19,9 +19,6 @@ $container = $app->getContainer();
 
 // Database
 $container['db'] = function ($c) {
-  // $pdo = new PDO('sqlite:host=' . getenv('DB_HOST') . ';dbname=' . getenv('DB_NAME'));
-    // , getenv('DB_USER'), getenv('DB_PASS'));
-
   $db_path = getenv('DB_PATH');
   $db = new PDO("sqlite:$db_path");
   // $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -62,20 +59,12 @@ $app->get('/check', function (Request $request, Response $response) {
     error_log($e->getMessage(), 0);
   }
 
-  $log = array(
-    'timezone' => $timestamp,
-    'datetime' => $datetime,
-    'status'   => $status
-  );
-  $jsonResponse = $response->withJson($log);
+  $jsonResponse = $response->withJson(array('status' => $status));
   return $jsonResponse;
 });
 
+// return log from the last 1 day as JSON
 $app->get('/', function (Request $request, Response $response) {
-  // return log from the last 1 day as JSON
-    // do log retrieval
-    // populate $log with retrieved data
-
   try {
     $dayAgo = time() - (24 * 60 * 60);
     $sql = "SELECT * FROM log WHERE `timestamp` >= $dayAgo";
@@ -85,14 +74,12 @@ $app->get('/', function (Request $request, Response $response) {
     error_log($e->getMessage(), 0);
   }
 
-  // return $response->getBody()->write(json_encode($sth->fetchAll(PDO::FETCH_CLASS)));
-
   $jsonResponse = $response->withJson(json_encode($sth->fetchAll(PDO::FETCH_CLASS)));
   return $jsonResponse;
 });
 
+// return log from the last {days} day as JSON
 // $app->get('/log/{days}', function (Request $request, Response $response, array $args) {
-//   // return log from the last {days} day as JSON
 //     // do log retrieval
 //     // populate $log with retrieved data
 
