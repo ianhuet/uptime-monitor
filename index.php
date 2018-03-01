@@ -1,10 +1,10 @@
 <?php
 
-use \Psr\Http\Message\ServerRequestInterface as Request;
-use \Psr\Http\Message\ResponseInterface as Response;
-
 require 'vendor/autoload.php';
 $config = require 'config.php';
+
+use \Psr\Http\Message\ServerRequestInterface as Request;
+use \Psr\Http\Message\ResponseInterface as Response;
 
 
 // Load .ENV configuration
@@ -18,14 +18,13 @@ $app = new \Slim\App($config);
 $container = $app->getContainer();
 
 // Database
-$container['db'] = function ($c) {
+$container['db'] = function () {
   $db_path = getenv('DB_PATH');
   $db = new PDO("sqlite:$db_path");
-  // $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-  // $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+  $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+  $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
   return $db;
 };
-
 
 
 
@@ -33,31 +32,10 @@ $container['db'] = function ($c) {
 // ==========================================================================
 
 $app->get('/check', function (Request $request, Response $response) {
+  $curl = new Curl\Curl();
   $url = getenv('UPTIME_ENDPOINT');
-
-  $ch = curl_init($url);
-  curl_setopt($ch, CURLOPT_NOBODY, true);
-  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-  curl_exec($ch);
-  $retcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-  curl_close($ch);
-
-  $timestamp = time();
-  $datetime  = gmdate("Y-M-d H:i:s");
-  $status = ($retcode === 200) ? true : false;
-  
-  try {
-    $sql = "INSERT INTO log (`timestamp`, `datetime`, `status`) VALUES (?, ?, ?)";
-    $qry = $this->db->prepare($sql);
-    $qry->execute([
-      $timestamp,
-      $datetime,
-      $status
-    ]);
-  }
-  catch(PDOException $e) {
-    error_log($e->getMessage(), 0);
-  }
+  $curl->get($url);
+  $status = ($curl->http_status_code === 200) ? true : false;
 
   $jsonResponse = $response->withJson(array('status' => $status));
   return $jsonResponse;

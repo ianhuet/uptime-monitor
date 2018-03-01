@@ -2,3 +2,4 @@ composer.phar
 /vendor/
 .env
 /db/db_log.sqlite
+.DS_Store
