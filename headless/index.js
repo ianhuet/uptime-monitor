@@ -1,16 +1,15 @@
-var system = require("system");
-var url = system.args[1];
 
-require('./phantom-full-load')(phantom, url, function (page, logs) {
-    logs.forEach(function (i) {
-        console.log('> ' + i);
-    });
+const puppeteer = require('puppeteer');
 
-    result = page.evaluate(function () {
-        return $('body *').attr('class');
-    });
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto('http://ianhuet.quickconnect.to', {
+    waitUntil: "networkidle0"
+  });
+  await page.screenshot({path: 'example.png'});
+  // await page.$({path: 'example.png'});
 
-    console.log(result);
-}, function (error) {
-    console.log(error);
-});
+  await browser.close();
+})()
+.catch(err => [err]);
