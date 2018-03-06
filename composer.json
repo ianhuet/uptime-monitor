@@ -2,6 +2,7 @@
     "require": {
         "slim/slim": "^3.0",
         "vlucas/phpdotenv": "^2.4",
-        "curl/curl": "^1.8"
+        "curl/curl": "^1.8",
+        "fabpot/goutte": "^3.2"
     }
 }

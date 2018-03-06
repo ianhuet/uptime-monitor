@@ -41,6 +41,31 @@ $app->get('/check', function (Request $request, Response $response) {
   return $jsonResponse;
 });
 
+$app->get('/screen-check', function (Request $request, Response $response) {
+  // $client = new Goutte\Client();
+  // $url = getenv('UPTIME_ENDPOINT');
+  // $crawler = $client->request('GET', $url);
+
+
+
+
+
+
+
+
+
+
+  // while() {
+  //   sleep(5);
+  //   $crawler = $client->request('GET', $url);
+  // }
+
+
+  $jsonResponse = $response->withJson(array('status' => $status));
+  return $jsonResponse;
+});
+
+
 // return log from the last 1 day as JSON
 $app->get('/', function (Request $request, Response $response) {
   try {
