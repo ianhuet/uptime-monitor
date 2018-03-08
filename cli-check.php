@@ -1,10 +1,10 @@
 <?php
 
-require '/webspace/httpdocs/uptime.huet.info/vendor/autoload.php';
+require './vendor/autoload.php';
 
 
 // Load .ENV configuration
-$dotenv = new Dotenv\Dotenv(__DIR__, '/webspace/httpdocs/.env.uptime-monitor');
+$dotenv = new Dotenv\Dotenv(__DIR__, '../.env.uptime-monitor');
 $dotenv->load();
 
 // Create app instance

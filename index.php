@@ -27,41 +27,23 @@ $container['db'] = function () {
 };
 
 
-
 // REQUEST END-POINTS
 // ==========================================================================
 
 $app->get('/check', function (Request $request, Response $response) {
-  $curl = new Curl\Curl();
-  $url = getenv('UPTIME_ENDPOINT');
-  $curl->get($url);
-  $status = ($curl->http_status_code === 200) ? true : false;
-
-  $jsonResponse = $response->withJson(array('status' => $status));
-  return $jsonResponse;
-});
-
-$app->get('/screen-check', function (Request $request, Response $response) {
-  // $client = new Goutte\Client();
+  // $curl = new Curl\Curl();
   // $url = getenv('UPTIME_ENDPOINT');
-  // $crawler = $client->request('GET', $url);
+  // $curl->get($url);
+  // $status = ($curl->http_status_code === 200) ? true : false;
 
+  ob_start();
+  include './cli-check.php';
+  $result = ob_get_clean();
+  $status = (strstr($result,'Online')) ? true : false;
 
-
-
-
-
-
-
-
-
-  // while() {
-  //   sleep(5);
-  //   $crawler = $client->request('GET', $url);
-  // }
-
-
-  $jsonResponse = $response->withJson(array('status' => $status));
+  $jsonResponse = $response->withJson(array(
+    'status' => $status
+  ));
   return $jsonResponse;
 });
 

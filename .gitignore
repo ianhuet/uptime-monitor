@@ -1,5 +1,8 @@
-composer.phar
-/vendor/
 .env
-/db/db_log.sqlite
 .DS_Store
+composer.phar
+
+vendor/
+node_modules/
+
+db/db_log.sqlite
