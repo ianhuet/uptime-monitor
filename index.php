@@ -42,6 +42,7 @@ $app->get('/check', function (Request $request, Response $response) {
   $status = (strstr($result,'Online')) ? true : false;
 
   $jsonResponse = $response->withJson(array(
+    'result' => $result,
     'status' => $status
   ));
   return $jsonResponse;

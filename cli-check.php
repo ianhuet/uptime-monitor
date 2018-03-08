@@ -1,10 +1,15 @@
 <?php
 
-require './vendor/autoload.php';
+
+error_reporting(E_ALL);
+
+
+// require './vendor/autoload.php';
+require '/var/www/vhosts/123/120154/webspace/httpdocs/uptime.huet.info/vendor/autoload.php';
 
 
 // Load .ENV configuration
-$dotenv = new Dotenv\Dotenv(__DIR__, '../.env.uptime-monitor');
+$dotenv = new Dotenv\Dotenv('/var/www/vhosts/123/120154/webspace/httpdocs/', '.env.uptime-monitor');
 $dotenv->load();
 
 // Create app instance
@@ -37,10 +42,13 @@ try {
   $timestamp = time();
   $datetime  = gmdate("Y-M-d H:i:s");
   $qry = $container['db']->prepare($sql);
-  $qry->execute([ $timestamp, $datetime, $status ]);
+  $qry->bindParam(1, $timestamp, PDO::PARAM_INT);
+  $qry->bindParam(2, $datetime,  PDO::PARAM_STR);
+  $qry->bindParam(3, $status,    PDO::PARAM_INT);
+  $result = $qry->execute([ $timestamp, $datetime, $status ]);
 }
 catch(PDOException $e) {
   error_log($e->getMessage(), 0);
 }
 
-echo ($status ? "Online" : "Offline") . " @ $datetime", PHP_EOL;
+echo ($status ? "Online" : "Offline") . " @ $datetime (db logged: $result)", PHP_EOL;
